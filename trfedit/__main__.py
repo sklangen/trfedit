@@ -1,4 +1,5 @@
 import gi
+import locale
 import sys
 import warnings
 
@@ -10,6 +11,7 @@ from .Window import Window
 
 def main():
     warnings.filterwarnings("ignore", category=DeprecationWarning)
+    locale.setlocale(locale.LC_ALL, locale='en_US')
 
     path = None
     if len(sys.argv) > 1:
