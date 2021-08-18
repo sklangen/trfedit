@@ -1,16 +1,20 @@
 from gi.repository import Gtk
+import trf
 
 from .TournamentPage import TournamentPage
 from .MenuBar import MenuBar
 
 
 class Window(Gtk.Window):
-    def __init__(self, tournament):
+    def __init__(self, tournament, tournament_path=None):
         super().__init__(title=f'{tournament.name} - trfedit')
         self.tournament = tournament
+        self.tournament_path = tournament_path
 
         menu_bar = MenuBar()
         self.add_accel_group(menu_bar.agr)
+
+        self.unsaved_changes = False
 
         menu_bar.add_menu('_File', [
             (Gtk.STOCK_NEW,     '<Control>N',   self.on_file_new),
@@ -21,10 +25,10 @@ class Window(Gtk.Window):
         ])
 
         self.notebook = Gtk.Notebook()
-        self.tournament_page = TournamentPage(tournament)
+        self.tournament_page = TournamentPage(tournament, self.on_unsaved_changes)
         self.notebook.append_page(
             self.tournament_page,
-            Gtk.Label(label="Tournament"))
+            Gtk.Label(label='Tournament'))
 
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         vbox.pack_start(menu_bar, False, False, 0)
@@ -45,7 +49,47 @@ class Window(Gtk.Window):
         print('OPEN FILE!')
 
     def on_file_save(self, widget):
-        print('SAVE FILE!')
+        self.save_tournament(self.tournament_path)
 
     def on_file_save_as(self, widget):
-        print('SAVE FILE AS!')
+        self.save_tournament(None)
+
+    def save_tournament(self, path):
+        if path is None:
+            dialog = Gtk.FileChooserDialog(
+                'Please choose a file', self,
+                Gtk.FileChooserAction.SAVE,
+                (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                    Gtk.STOCK_SAVE, Gtk.ResponseType.OK))
+
+            response = dialog.run()
+            if response == Gtk.ResponseType.OK:
+                path = dialog.get_filename()
+
+            dialog.destroy()
+
+        if path is None:
+            return
+
+        try:
+            with open(path, 'w') as f:
+                trf.dump(f, self.tournament)
+        except Exception as e:
+            dialog = Gtk.MessageDialog(
+                transient_for=self,
+                flags=0,
+                message_type=Gtk.MessageType.ERROR,
+                buttons=Gtk.ButtonsType.CANCEL,
+                text='Error saving tournament')
+
+            dialog.format_secondary_text(str(e))
+            dialog.run()
+
+            dialog.destroy()
+            raise e
+
+        self.tournament_path = path
+        self.unsaved_changes = False
+
+    def on_unsaved_changes(self):
+        self.unsaved_changes = True
