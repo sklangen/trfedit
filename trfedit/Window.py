@@ -21,7 +21,7 @@ class Window(Gtk.Window):
             (Gtk.STOCK_OPEN,    '<Control>O',   self.on_file_open),
             (Gtk.STOCK_SAVE,    '<Control>S',   self.on_file_save),
             (Gtk.STOCK_SAVE_AS, None,           self.on_file_save_as),
-            (Gtk.STOCK_QUIT,    '<Control>Q',   Gtk.main_quit)
+            (Gtk.STOCK_QUIT,    '<Control>Q',   self.on_quit)
         ])
 
         self.notebook = Gtk.Notebook()
@@ -35,6 +35,8 @@ class Window(Gtk.Window):
         vbox.pack_start(self.notebook, False, False, 0)
 
         self.add(vbox)
+
+        self.connect('delete-event', self.on_quit)
 
         # TODO:
         # rounddates: List[str] = field(default_factory=list)
@@ -93,3 +95,26 @@ class Window(Gtk.Window):
 
     def on_unsaved_changes(self):
         self.unsaved_changes = True
+
+    def on_quit(self, widget, event=None):
+        self.quit()
+
+    def quit(self):
+        if self.unsaved_changes:
+            dialog = Gtk.MessageDialog(
+                transient_for=self,
+                flags=0,
+                message_type=Gtk.MessageType.WARNING,
+                buttons=Gtk.ButtonsType.YES_NO,
+                text='Unsaved changes may be lost')
+
+            dialog.format_secondary_text(
+                'Do you want to save before exiting?')
+
+            response = dialog.run()
+            if response == Gtk.ResponseType.YES:
+                self.save_tournament(self.tournament_path)
+
+            dialog.destroy()
+
+        Gtk.main_quit()
