@@ -15,8 +15,6 @@ class TournamentPage(Gtk.Box):
         self.listbox.set_selection_mode(Gtk.SelectionMode.NONE)
         self.pack_start(self.listbox, True, True, 0)
 
-        # TODO: process value change
-
         self.name_entry = self.add_entry(
             'Tournament Name:',
             self.on_name_changed)

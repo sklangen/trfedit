@@ -3,6 +3,7 @@ import traceback
 import trf
 
 from .TournamentPage import TournamentPage
+from .RoundDatesPage import RoundDatesPage
 from .MenuBar import MenuBar
 
 
@@ -17,23 +18,21 @@ class Window(Gtk.Window):
 
         self.unsaved_changes = False
 
-        menu_bar.add_menu('_File', [
-            (Gtk.STOCK_NEW,     '<Control>N',           self.on_file_new),
-            (Gtk.STOCK_OPEN,    '<Control>O',           self.on_file_open),
-            (Gtk.STOCK_SAVE,    '<Control>S',           self.on_file_save),
-            (Gtk.STOCK_SAVE_AS, '<Shift><Control>S',    self.on_file_save_as),
-            (Gtk.STOCK_QUIT,    '<Control>Q',           self.on_quit)
-        ])
-
         self.notebook = Gtk.Notebook()
+
         self.tournament_page = TournamentPage(self.on_unsaved_changes)
         self.notebook.append_page(
             self.tournament_page,
             Gtk.Label(label='Tournament'))
 
+        self.rounddates_page = RoundDatesPage(self.on_unsaved_changes)
+        self.notebook.append_page(
+            self.rounddates_page,
+            Gtk.Label(label='Round Dates'))
+
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         vbox.pack_start(menu_bar, False, False, 0)
-        vbox.pack_start(self.notebook, False, False, 0)
+        vbox.pack_start(self.notebook, True, True, 0)
 
         self.add(vbox)
 
@@ -44,6 +43,19 @@ class Window(Gtk.Window):
         # players: List[Player] = field(default_factory=list)
         # teams: List[str] = field(default_factory=list)
         # xx_fields: Dict[str, str] = field(default_factory=dict)
+
+        menu_bar.add_menu('_File', [
+            (Gtk.STOCK_NEW,     '<Control>N',           self.on_file_new),
+            (Gtk.STOCK_OPEN,    '<Control>O',           self.on_file_open),
+            (Gtk.STOCK_SAVE,    '<Control>S',           self.on_file_save),
+            (Gtk.STOCK_SAVE_AS, '<Shift><Control>S',    self.on_file_save_as),
+            (Gtk.STOCK_QUIT,    '<Control>Q',           self.on_quit)
+        ])
+
+        menu_bar.add_menu('Round Dates', [
+            # TODO: This is not a "stock" action
+            (Gtk.STOCK_NEW, '<Control>R',   self.rounddates_page.on_new_rounddate)
+        ])
 
         if tournament_path is None:
             self.set_tournament_to_new_tournament()
@@ -115,7 +127,6 @@ class Window(Gtk.Window):
     def ask_for_tournament_path(self):
         path = None
 
-
         dialog = Gtk.FileChooserDialog(
             'Please choose a file', self,
             Gtk.FileChooserAction.SAVE,
@@ -156,6 +167,7 @@ class Window(Gtk.Window):
     def set_tournament(self, tournament):
         self.tournament = tournament
         self.tournament_page.set_tournament(tournament)
+        self.rounddates_page.set_tournament(tournament)
         self.tournament_path = None
 
     def set_tournament_to_new_tournament(self):
