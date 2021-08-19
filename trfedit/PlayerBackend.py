@@ -104,6 +104,12 @@ class PlayerBackend(TreeViewPageBackend):
                 'Points must be a nonnegative whole multiple of 0.5')
             return
 
+        if points >= 100:
+            self.win.show_error_dialog(
+                'Invalid number of points',
+                'Points must be less than 100')
+            return
+
         self.tournament.players[int(path)].points = points
         self.store[path][8] = self.format_points(points)
         self.win.on_unsaved_changes()
