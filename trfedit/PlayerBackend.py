@@ -6,7 +6,8 @@ from .TreeViewPage import TreeViewPageBackend
 
 class PlayerBackend(TreeViewPageBackend):
     def __init__(self, win):
-        super().__init__(Gtk.ListStore(int, str, str, str, int, str, int, str, str, int), [
+        super().__init__(Gtk.ListStore(int, str, str, str, int,
+                                       str, int, str, str, int), [
             ('Start Rank', None),
             ('Name', self.on_name_edited),
             ('Sex', self.on_sex_edited),
@@ -23,7 +24,7 @@ class PlayerBackend(TreeViewPageBackend):
     def on_name_edited(self, widget, path, text):
         # TODO: on_name_edited
         pass
- 
+
     def on_sex_edited(self, widget, path, text):
         # TODO: on_sex_edited
         pass
@@ -33,16 +34,39 @@ class PlayerBackend(TreeViewPageBackend):
         pass
 
     def on_rating_edited(self, widget, path, text):
-        # TODO: on_rating_edited
-        pass
+        rating = self.parse_int(text, 9999)
+        if rating is not None:
+            self.tournament.players[int(path)].rating = rating
+            self.store[path][4] = rating
+            self.win.on_unsaved_changes()
+
+    def parse_int(self, text, bound=2147483647):
+        if not text.isdigit():
+            self.win.show_error_dialog(
+                'Could not parse number',
+                'Input may only contain digits from 0 to 9')
+            return None
+
+        num = int(text)
+
+        if num > bound:
+            self.win.show_error_dialog(
+                'Number out of range',
+                f'Input must be less then or equal to {bound}')
+            return None
+
+        return num
 
     def on_fed_edited(self, widget, path, text):
         # TODO: on_fed_edited
         pass
 
     def on_id_edited(self, widget, path, text):
-        # TODO: on_id_edited
-        pass
+        id = self.parse_int(text)
+        if id is not None:
+            self.tournament.players[int(path)].id = id
+            self.store[path][6] = id
+            self.win.on_unsaved_changes()
 
     def on_birthdate_edited(self, widget, path, text):
         # TODO: on_birthdate_edited
@@ -53,8 +77,11 @@ class PlayerBackend(TreeViewPageBackend):
         pass
 
     def on_rank_edited(self, widget, path, text):
-        # TODO: on_rank_edite
-        pass
+        rank = self.parse_int(text, 9999)
+        if rank is not None:
+            self.tournament.players[int(path)].rank = rank
+            self.store[path][9] = rank
+            self.win.on_unsaved_changes()
 
     def append_new_row(self):
         index = len(self.tournament.players)
