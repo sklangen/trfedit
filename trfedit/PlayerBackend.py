@@ -85,6 +85,7 @@ class PlayerBackend(TreeViewPageBackend):
         self.tournament.players[i1] = b
         self.tournament.players[i2] = a
 
+        # TODO: Fix startranks in teams
         for player in self.tournament.players:
             for game in player.games:
                 if game.startrank == a.startrank:
@@ -101,8 +102,12 @@ class PlayerBackend(TreeViewPageBackend):
         self.store[i2][0] = a.startrank
 
     def remove_row_from_data(self, index):
-        # TODO: Remove all games against this player
+        startrank = self.tournament.players[index].startrank
         del self.tournament.players[index]
+
+        for player in self.tournament.players:
+            player.games = list(filter(lambda g: g.startrank != startrank,
+                                       player.games))
 
     def __len__(self):
         return len(self.tournament.players)
