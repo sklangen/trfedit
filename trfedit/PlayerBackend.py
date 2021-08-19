@@ -22,16 +22,22 @@ class PlayerBackend(TreeViewPageBackend):
         self.win = win
 
     def on_name_edited(self, widget, path, text):
-        # TODO: on_name_edited
-        pass
+        if self.check_text_len(text, 33):
+            self.tournament.players[int(path)].name = text
+            self.store[path][1] = text
+            self.win.on_unsaved_changes()
 
     def on_sex_edited(self, widget, path, text):
-        # TODO: on_sex_edited
-        pass
+        if self.check_text_len(text, 1):
+            self.tournament.players[int(path)].sex = text
+            self.store[path][2] = text
+            self.win.on_unsaved_changes()
 
     def on_title_edited(self, widget, path, text):
-        # TODO: on_title_edited
-        pass
+        if self.check_text_len(text, 3):
+            self.tournament.players[int(path)].title = text
+            self.store[path][3] = text
+            self.win.on_unsaved_changes()
 
     def on_rating_edited(self, widget, path, text):
         rating = self.parse_int(text, 9999)
@@ -58,8 +64,18 @@ class PlayerBackend(TreeViewPageBackend):
         return num
 
     def on_fed_edited(self, widget, path, text):
-        # TODO: on_fed_edited
-        pass
+        if self.check_text_len(text, 3):
+            self.tournament.players[int(path)].fed = text
+            self.store[path][5] = text
+            self.win.on_unsaved_changes()
+
+    def check_text_len(self, text, limit):
+        if len(text) > limit:
+            self.win.show_error_dialog(
+                'Input to long',
+                f'The input may only be {limit} characters long')
+            return False
+        return True
 
     def on_id_edited(self, widget, path, text):
         id = self.parse_int(text)
@@ -69,8 +85,11 @@ class PlayerBackend(TreeViewPageBackend):
             self.win.on_unsaved_changes()
 
     def on_birthdate_edited(self, widget, path, text):
-        # TODO: on_birthdate_edited
-        pass
+        if self.check_text_len(text, 10):
+            self.tournament.players[int(path)].birthdate = text
+            self.store[path][7] = text
+            self.win.on_unsaved_changes()
+
 
     def on_points_edited(self, widget, path, text):
         # TODO: on_points_edited
