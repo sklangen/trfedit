@@ -92,8 +92,24 @@ class PlayerBackend(TreeViewPageBackend):
 
 
     def on_points_edited(self, widget, path, text):
-        # TODO: on_points_edited
-        pass
+        try:
+            points = float(text)
+        except ValueError as e:
+            self.win.show_error_dialog('Cannot parse number', str(e))
+            return
+
+        if points < 0 or points % 0.5 != 0:
+            self.win.show_error_dialog(
+                'Invalid number of points',
+                'Points must be a nonnegative whole multiple of 0.5')
+            return
+
+        self.tournament.players[int(path)].points = points
+        self.store[path][8] = self.format_points(points)
+        self.win.on_unsaved_changes()
+
+    def format_points(self, points):
+        return format(points, '.1f')
 
     def on_rank_edited(self, widget, path, text):
         rank = self.parse_int(text, 9999)
@@ -120,7 +136,7 @@ class PlayerBackend(TreeViewPageBackend):
             player.fed,
             player.id,
             player.birthdate,
-            format(player.points, '.1f'),
+            self.format_points(player.points),
             player.rank
         ])
 
