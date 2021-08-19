@@ -1,15 +1,17 @@
 from gi.repository import Gtk
-from datetime import date
+
+import datetime
+import re
 
 
 DATE_FORMAT = '%y/%m/%d'
 
 
 class RoundDatesPage(Gtk.Box):
-    def __init__(self, on_unsaved_changes):
+    def __init__(self, win):
         super().__init__(orientation=Gtk.Orientation.VERTICAL)
 
-        self.on_unsaved_changes = on_unsaved_changes
+        self.win = win
         self.tournament = None
 
         self.scroll = Gtk.ScrolledWindow()
@@ -18,10 +20,15 @@ class RoundDatesPage(Gtk.Box):
 
         self.scroll.set_vexpand(True)
 
-        for i, column_title in enumerate(["Round", "Date"]):
-            renderer = Gtk.CellRendererText()
-            column = Gtk.TreeViewColumn(column_title, renderer, text=i)
-            self.treeview.append_column(column)
+        renderer = Gtk.CellRendererText()
+        column = Gtk.TreeViewColumn('Round', renderer, text=0)
+        self.treeview.append_column(column)
+
+        renderer = Gtk.CellRendererText()
+        renderer.set_property('editable', True)
+        renderer.connect('edited', self.on_round_edited)
+        column = Gtk.TreeViewColumn('Date', renderer, text=1)
+        self.treeview.append_column(column)
 
         self.scroll.add(self.treeview)
         self.pack_start(self.scroll, True, True, 0)
@@ -34,18 +41,30 @@ class RoundDatesPage(Gtk.Box):
 
         self.pack_start(action_bar, False, False, 0)
 
+    def on_round_edited(self, widget, path, text):
+        if re.search('\\s+', text):
+            self.win.show_error_dialog('Invalid round date',
+                                       'No whitespace allowed in round dates')
+            return
+
+        self.tournament.rounddates[int(path)] = text
+        self.store[path][1] = text
+        self.win.on_unsaved_changes()
+
     def on_new_rounddate(self, widget):
         round = len(self.tournament.rounddates)
-        today = date.today().strftime(DATE_FORMAT)
+        today = datetime.date.today().strftime(DATE_FORMAT)
 
         self.store.append([round+1, today])
         self.tournament.rounddates.append(today)
 
         self.treeview.set_cursor(round)
-        self.on_unsaved_changes()
+        self.win.on_unsaved_changes()
 
     def set_tournament(self, tournament):
         self.tournament = tournament
+
+        self.store.clear()
 
         for i, date in enumerate(tournament.rounddates):
             self.store.append([i+1, date])
