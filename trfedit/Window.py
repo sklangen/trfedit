@@ -54,8 +54,15 @@ class Window(Gtk.Window):
 
         menu_bar.add_menu('Round Dates', [
             # TODO: This is not a "stock" action
-            (Gtk.STOCK_NEW, '<Control>R',   self.rounddates_page.on_new_rounddate)
+            (Gtk.STOCK_NEW, '<Control>R',   self.on_new_rounddate)
         ])
+
+    def on_new_rounddate(self, widget):
+        self.focus_page(self.rounddates_page)
+        self.rounddates_page.on_new_rounddate(widget)
+
+    def focus_page(self, page):
+        self.notebook.set_current_page(self.notebook.page_num(page))
 
     def on_file_new(self, widget):
         self.ensure_changes_saved()
