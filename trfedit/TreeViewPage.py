@@ -12,7 +12,7 @@ class TreeViewPageBackend(ABC):
         pass
 
     def remove_row(self, index):
-        iter = self.store[index].iter
+        iter = self.backend.iter_for_row(index)
         self.store.remove(iter)
         self.remove_row_from_data(index)
 
@@ -27,6 +27,12 @@ class TreeViewPageBackend(ABC):
     @abstractmethod
     def append_new_row(self):
         pass
+
+    def iter_for_row(self, index):
+        return self.store[index].iter
+
+    def swap_store_rows(self, i1, i2):
+        self.store.swap(self.iter_for_row(i1), self.iter_for_row(i2))
 
 
 class TreeViewPage(Gtk.Box):

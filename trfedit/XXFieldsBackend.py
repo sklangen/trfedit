@@ -1,6 +1,5 @@
 from gi.repository import Gtk
 
-import datetime
 import re
 
 from .TreeViewPage import TreeViewPageBackend
@@ -36,7 +35,7 @@ class XXFieldsBackend(TreeViewPageBackend):
         return index
 
     def swap_rows(self, i1, i2):
-        self.store.swap(i1, i2)
+        self.swap_store_rows(i1, i2)
 
     def on_name_edited(self, widget, path, text):
         if not XX_FIELD_PATTERN.fullmatch(text):
