@@ -1,4 +1,4 @@
-from gi.repository import Gtk
+from gi.repository import Gtk, Gdk
 
 import datetime
 import re
@@ -33,13 +33,33 @@ class RoundDatesPage(Gtk.Box):
         self.scroll.add(self.treeview)
         self.pack_start(self.scroll, True, True, 0)
 
+        self.treeview.connect('key-press-event', self.on_key_typed)
+
         action_bar = Gtk.ActionBar()
 
-        new_round_button = Gtk.Button.new_from_stock(Gtk.STOCK_ADD)
-        new_round_button.connect('clicked', self.on_new_rounddate)
-        action_bar.add(new_round_button)
+        new_button = Gtk.Button.new_from_stock(Gtk.STOCK_ADD)
+        new_button.connect('clicked', self.on_new_rounddate)
+        action_bar.add(new_button)
+
+        remove_button = Gtk.Button.new_from_stock(Gtk.STOCK_REMOVE)
+        remove_button.connect('clicked', self.on_remove_rounddate)
+        action_bar.add(remove_button)
 
         self.pack_start(action_bar, False, False, 0)
+
+    def on_remove_rounddate(self, widget):
+        self.remove_round_date()
+
+    def remove_round_date(self):
+        path, _ = self.treeview.get_cursor()
+        if path is not None:
+            i_date_date_date_date_datendex = path.get_indices()[0]
+            iter = self.store.get_iter(path)
+
+            self.store.remove(iter)
+            del self.tournament.rounddates[index]
+
+            self.on_unsaved_changes()
 
     def on_round_edited(self, widget, path, text):
         if re.search('\\s+', text):
@@ -50,6 +70,10 @@ class RoundDatesPage(Gtk.Box):
         self.tournament.rounddates[int(path)] = text
         self.store[path][1] = text
         self.win.on_unsaved_changes()
+
+    def on_key_typed(self, widget, event):
+        if event.keyval in (Gdk.KEY_Delete, Gdk.KEY_BackSpace):
+            self.remove_round_date()
 
     def on_new_rounddate(self, widget):
         round = len(self.tournament.rounddates)
