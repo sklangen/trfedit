@@ -6,6 +6,7 @@ from .MenuBar import MenuBar
 from .RoundDatesBackend import RoundDatesBackend
 from .TournamentPage import TournamentPage
 from .TreeViewPage import TreeViewPage
+from .XXFieldsBackend import XXFieldsBackend
 
 
 class Window(Gtk.Window):
@@ -32,6 +33,12 @@ class Window(Gtk.Window):
             self.rounddates_page,
             Gtk.Label(label='Round Dates'))
 
+        self.xx_fields_backend = XXFieldsBackend(self)
+        self.xx_fields_page = TreeViewPage(self, self.xx_fields_backend)
+        self.notebook.append_page(
+            self.xx_fields_page,
+            Gtk.Label(label='XX Fields'))
+
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         vbox.pack_start(menu_bar, False, False, 0)
         vbox.pack_start(self.notebook, True, True, 0)
@@ -43,7 +50,6 @@ class Window(Gtk.Window):
         # TODO:
         # players: List[Player] = field(default_factory=list)
         # teams: List[str] = field(default_factory=list)
-        # xx_fields: Dict[str, str] = field(default_factory=dict)
 
         menu_bar.add_menu('_File', [
             (Gtk.STOCK_NEW,     '<Control>N',           self.on_file_new),
@@ -171,6 +177,7 @@ class Window(Gtk.Window):
         self.tournament = tournament
         self.tournament_page.set_tournament(tournament)
         self.rounddates_backend.set_tournament(tournament)
+        self.xx_fields_backend.set_tournament(tournament)
         self.tournament_path = None
 
     def set_tournament_to_new_tournament(self):
