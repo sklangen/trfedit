@@ -2,9 +2,10 @@ from gi.repository import Gtk
 import traceback
 import trf
 
-from .TournamentPage import TournamentPage
-from .RoundDatesPage import RoundDatesPage
 from .MenuBar import MenuBar
+from .RoundDatesBackend import RoundDatesBackend
+from .TournamentPage import TournamentPage
+from .TreeViewPage import TreeViewPage
 
 
 class Window(Gtk.Window):
@@ -25,7 +26,8 @@ class Window(Gtk.Window):
             self.tournament_page,
             Gtk.Label(label='Tournament'))
 
-        self.rounddates_page = RoundDatesPage(self)
+        self.rounddates_backend = RoundDatesBackend(self)
+        self.rounddates_page = TreeViewPage(self, self.rounddates_backend)
         self.notebook.append_page(
             self.rounddates_page,
             Gtk.Label(label='Round Dates'))
@@ -39,7 +41,6 @@ class Window(Gtk.Window):
         self.connect('delete-event', self.on_quit)
 
         # TODO:
-        # rounddates: List[str] = field(default_factory=list)
         # players: List[Player] = field(default_factory=list)
         # teams: List[str] = field(default_factory=list)
         # xx_fields: Dict[str, str] = field(default_factory=dict)
@@ -59,7 +60,7 @@ class Window(Gtk.Window):
 
     def on_new_rounddate(self, widget):
         self.focus_page(self.rounddates_page)
-        self.rounddates_page.on_new_rounddate(widget)
+        self.rounddates_page.on_new(widget)
 
     def focus_page(self, page):
         self.notebook.set_current_page(self.notebook.page_num(page))
@@ -169,7 +170,7 @@ class Window(Gtk.Window):
     def set_tournament(self, tournament):
         self.tournament = tournament
         self.tournament_page.set_tournament(tournament)
-        self.rounddates_page.set_tournament(tournament)
+        self.rounddates_backend.set_tournament(tournament)
         self.tournament_path = None
 
     def set_tournament_to_new_tournament(self):
