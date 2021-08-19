@@ -3,6 +3,7 @@ import traceback
 import trf
 
 from .MenuBar import MenuBar
+from .PlayerBackend import PlayerBackend
 from .RoundDatesBackend import RoundDatesBackend
 from .TournamentPage import TournamentPage
 from .TreeViewPage import TreeViewPage
@@ -38,6 +39,12 @@ class Window(Gtk.Window):
         self.notebook.append_page(
             self.xx_fields_page,
             Gtk.Label(label='XX Fields'))
+
+        self.player_backend = PlayerBackend(self)
+        self.player_page = TreeViewPage(self, self.player_backend)
+        self.notebook.append_page(
+            self.player_page,
+            Gtk.Label(label='Players'))
 
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         vbox.pack_start(menu_bar, False, False, 0)
@@ -178,6 +185,7 @@ class Window(Gtk.Window):
         self.tournament_page.set_tournament(tournament)
         self.rounddates_backend.set_tournament(tournament)
         self.xx_fields_backend.set_tournament(tournament)
+        self.player_backend.set_tournament(tournament)
         self.tournament_path = None
 
     def set_tournament_to_new_tournament(self):
