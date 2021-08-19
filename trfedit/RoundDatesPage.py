@@ -45,21 +45,59 @@ class RoundDatesPage(Gtk.Box):
         remove_button.connect('clicked', self.on_remove_rounddate)
         action_bar.add(remove_button)
 
+        up_button = Gtk.Button.new_from_stock(Gtk.STOCK_GO_UP)
+        up_button.connect('clicked', self.on_up_rounddate)
+        action_bar.add(up_button)
+
+        down_button = Gtk.Button.new_from_stock(Gtk.STOCK_GO_DOWN)
+        down_button.connect('clicked', self.on_down_rounddate)
+        action_bar.add(down_button)
+
         self.pack_start(action_bar, False, False, 0)
+
+    def on_down_rounddate(self, widget):
+        index, iter = self.get_selected_row()
+        if index is not None:
+            self.move_row(index, +1)
+
+    def move_row(self, index, dir):
+        other = (index+dir) % len(self.tournament.rounddates)
+        a = self.tournament.rounddates[index]
+        b = self.tournament.rounddates[other]
+
+        self.tournament.rounddates[index] = b
+        self.tournament.rounddates[other] = a
+
+        self.store[index][1] = b
+        self.store[other][1] = a
+
+        self.treeview.set_cursor(other)
+        self.win.on_unsaved_changes()
+
+    def on_up_rounddate(self, widget):
+        index, iter = self.get_selected_row()
+        if index is not None:
+            self.move_row(index, -1)
 
     def on_remove_rounddate(self, widget):
         self.remove_round_date()
 
-    def remove_round_date(self):
+    def get_selected_row(self):
         path, _ = self.treeview.get_cursor()
-        if path is not None:
-            i_date_date_date_date_datendex = path.get_indices()[0]
+        if path is None:
+            return None, None
+        else:
+            index = path.get_indices()[0]
             iter = self.store.get_iter(path)
+            return index, iter
 
+    def remove_round_date(self):
+        index, iter = self.get_selected_row()
+        if index is not None:
             self.store.remove(iter)
             del self.tournament.rounddates[index]
 
-            self.on_unsaved_changes()
+            self.win.on_unsaved_changes()
 
     def on_round_edited(self, widget, path, text):
         if re.search('\\s+', text):
