@@ -108,6 +108,13 @@ class PlayerBackend(TreeViewPageBackend):
         for player in self.tournament.players:
             player.games = list(filter(lambda g: g.startrank != startrank,
                                        player.games))
+            for game in player.games:
+                if game.startrank > startrank:
+                    game.startrank -= 1
+
+        for i, player in enumerate(self.tournament.players[index:]):
+            player.startrank -= 1
+            self.store[index+i][0] = player.startrank
 
     def __len__(self):
         return len(self.tournament.players)
