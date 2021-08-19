@@ -25,7 +25,7 @@ class Window(Gtk.Window):
             self.tournament_page,
             Gtk.Label(label='Tournament'))
 
-        self.rounddates_page = RoundDatesPage(self.on_unsaved_changes)
+        self.rounddates_page = RoundDatesPage(self)
         self.notebook.append_page(
             self.rounddates_page,
             Gtk.Label(label='Round Dates'))
@@ -113,7 +113,8 @@ class Window(Gtk.Window):
             with open(path, 'w') as f:
                 trf.dump(f, self.tournament)
         except Exception as e:
-            self.show_error_dialog('Error writing tournament', e)
+            self.show_error_dialog('Error writing tournament', str(e))
+            traceback.print_exc()
             return
 
         self.tournament_path = path
@@ -135,7 +136,7 @@ class Window(Gtk.Window):
         dialog.destroy()
         return path
 
-    def show_error_dialog(self, title, exception):
+    def show_error_dialog(self, title, secondary_text):
         dialog = Gtk.MessageDialog(
             transient_for=self,
             flags=0,
@@ -143,11 +144,10 @@ class Window(Gtk.Window):
             buttons=Gtk.ButtonsType.CANCEL,
             text=title)
 
-        dialog.format_secondary_text(str(exception))
+        dialog.format_secondary_text(secondary_text)
         dialog.run()
 
         dialog.destroy()
-        traceback.print_exc()
 
     def on_unsaved_changes(self):
         self.unsaved_changes = True
@@ -177,4 +177,8 @@ class Window(Gtk.Window):
             self.tournament_path = path
             self.update_title()
         except Exception as e:
-            self.show_error_dialog('Error reading tournament', e)
+            self.show_error_dialog('Error reading tournament', str(e))
+            traceback.print_exc()
+
+            if self.tournament is None:
+                self.set_tournament_to_new_tournament()
