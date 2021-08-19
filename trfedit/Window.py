@@ -8,7 +8,7 @@ from .MenuBar import MenuBar
 
 
 class Window(Gtk.Window):
-    def __init__(self, tournament_path):
+    def __init__(self):
         super().__init__(title='trfedit')
         self.tournament = None
         self.tournament_path = None
@@ -56,11 +56,6 @@ class Window(Gtk.Window):
             # TODO: This is not a "stock" action
             (Gtk.STOCK_NEW, '<Control>R',   self.rounddates_page.on_new_rounddate)
         ])
-
-        if tournament_path is None:
-            self.set_tournament_to_new_tournament()
-        else:
-            self.set_tournament_by_path(tournament_path)
 
     def on_file_new(self, widget):
         self.ensure_changes_saved()

@@ -13,12 +13,14 @@ def main():
     warnings.filterwarnings("ignore", category=DeprecationWarning)
     locale.setlocale(locale.LC_ALL, locale='en_US')
 
-    path = None
-    if len(sys.argv) > 1:
-        path = sys.argv[1]
-
-    win = Window(path)
+    win = Window()
     win.show_all()
+
+    if len(sys.argv) > 1:
+        win.set_tournament_by_path(sys.argv[1])
+    else:
+        win.set_tournament_to_new_tournament()
+
     Gtk.main()
 
 
