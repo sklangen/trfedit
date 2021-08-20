@@ -1,4 +1,4 @@
-# TRF
+# trfedit
 
 A GUI editor for the fide approved tournament report format: trf
 
