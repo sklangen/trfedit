@@ -2,6 +2,7 @@ from gi.repository import Gtk
 import traceback
 import trf
 
+from .CrosstablePage import CrosstablePage
 from .MenuBar import MenuBar, StockMenuItem, SeperatorMenuItem, LabeledMenuItem
 from .PlayerBackend import PlayerBackend
 from .RoundDatesBackend import RoundDatesBackend
@@ -40,11 +41,16 @@ class Window(Gtk.Window):
             self.xx_fields_page,
             Gtk.Label(label='XX Fields'))
 
-        self.player_backend = PlayerBackend(self)
+        self.crosstable_page = CrosstablePage(self)
+        self.player_backend = PlayerBackend(self, self.crosstable_page)
         self.player_page = TreeViewPage(self, self.player_backend)
         self.notebook.append_page(
             self.player_page,
             Gtk.Label(label='Players'))
+
+        self.notebook.append_page(
+            self.crosstable_page,
+            Gtk.Label(label='Crosstable'))
 
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         vbox.pack_start(menu_bar, False, False, 0)
@@ -124,7 +130,7 @@ class Window(Gtk.Window):
     def on_file_new(self, widget):
         self.ensure_changes_saved()
 
-        path = self.ask_for_tournament_path()
+        path = self.ask_for_tournament_path(Gtk.STOCK_NEW)
         if path is not None:
             self.tournament_path = path
             self.set_tournament_to_new_tournament()
@@ -164,7 +170,7 @@ class Window(Gtk.Window):
     def on_file_open(self, widget):
         self.ensure_changes_saved()
 
-        path = self.ask_for_tournament_path()
+        path = self.ask_for_tournament_path(Gtk.STOCK_OPEN)
         if path is not None:
             self.set_tournament_by_path(path)
 
@@ -176,7 +182,7 @@ class Window(Gtk.Window):
 
     def save_tournament(self, path):
         if path is None:
-            path = self.ask_for_tournament_path()
+            path = self.ask_for_tournament_path(Gtk.STOCK_SAVE)
 
         if path is None:
             return
@@ -196,14 +202,14 @@ class Window(Gtk.Window):
         self.unsaved_changes = False
         self.update_title()
 
-    def ask_for_tournament_path(self):
+    def ask_for_tournament_path(self, stock_id):
         path = None
 
         dialog = Gtk.FileChooserDialog(
             'Please choose a file', self,
             Gtk.FileChooserAction.SAVE,
             (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
-                Gtk.STOCK_SAVE, Gtk.ResponseType.OK))
+                stock_id, Gtk.ResponseType.OK))
 
         response = dialog.run()
         if response == Gtk.ResponseType.OK:
@@ -242,6 +248,7 @@ class Window(Gtk.Window):
         self.rounddates_backend.set_tournament(tournament)
         self.xx_fields_backend.set_tournament(tournament)
         self.player_backend.set_tournament(tournament)
+        self.crosstable_page.set_tournament(tournament)
         self.on_saved_changes()
 
     def set_tournament_to_new_tournament(self):
@@ -252,12 +259,12 @@ class Window(Gtk.Window):
         try:
             with open(path, 'r') as f:
                 tour = trf.load(f)
-
-            self.tournament_path = path
-            self.set_tournament(tour)
         except Exception as e:
             self.show_error_dialog('Error reading tournament', str(e))
             traceback.print_exc()
 
             if self.tournament is None:
                 self.set_tournament_to_new_tournament()
+
+        self.tournament_path = path
+        self.set_tournament(tour)

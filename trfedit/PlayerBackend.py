@@ -5,7 +5,7 @@ from .TreeViewPage import TreeViewPageBackend
 
 
 class PlayerBackend(TreeViewPageBackend):
-    def __init__(self, win):
+    def __init__(self, win, crosstable_page):
         super().__init__(Gtk.ListStore(int, str, str, str, int,
                                        str, int, str, str, int), [
             ('Start Rank', None),
@@ -20,11 +20,14 @@ class PlayerBackend(TreeViewPageBackend):
             ('Rank', self.on_rank_edited)
         ])
         self.win = win
+        self.crosstable_page = crosstable_page
 
     def on_name_edited(self, widget, path, text):
         if self.check_text_len(text, 33):
-            self.tournament.players[int(path)].name = text
+            index = int(path)
+            self.tournament.players[index].name = text
             self.store[path][1] = text
+            self.crosstable_page.set_name(index, text)
             self.win.on_unsaved_changes()
 
     def on_sex_edited(self, widget, path, text):
@@ -125,9 +128,12 @@ class PlayerBackend(TreeViewPageBackend):
 
     def append_new_row(self):
         index = len(self.tournament.players)
+
         player = Player(name='New player', startrank=index+1)
         self.append_player_to_store(player)
+
         self.tournament.players.append(player)
+        self.crosstable_page.generate_crosstable_cells()
 
         return index
 
@@ -167,6 +173,7 @@ class PlayerBackend(TreeViewPageBackend):
         self.swap_store_rows(i1, i2)
         self.store[i1][0] = b.startrank
         self.store[i2][0] = a.startrank
+        self.crosstable_page.generate_crosstable_cells()
 
     def remove_row_from_data(self, index):
         startrank = self.tournament.players[index].startrank
@@ -183,6 +190,7 @@ class PlayerBackend(TreeViewPageBackend):
                 self.store[i][0] = player.startrank
 
         del self.tournament.players[index]
+        self.crosstable_page.generate_crosstable_cells()
 
     def __len__(self):
         return len(self.tournament.players)
