@@ -65,7 +65,7 @@ class XXFieldsBackend(TreeViewPageBackend):
         self.win.on_unsaved_changes()
 
     def remove_row_from_data(self, index):
-        name = self.store[path][0]
+        name = self.store[index][0]
         del self.tournament.xx_fields[name]
 
     def __len__(self):
