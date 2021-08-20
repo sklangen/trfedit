@@ -13,8 +13,8 @@ class TreeViewPageBackend(ABC):
 
     def remove_row(self, index):
         iter = self.iter_for_row(index)
-        self.store.remove(iter)
         self.remove_row_from_data(index)
+        self.store.remove(iter)
 
     @abstractmethod
     def remove_row_from_data(self, index):
