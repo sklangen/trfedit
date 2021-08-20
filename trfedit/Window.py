@@ -77,6 +77,20 @@ class Window(Gtk.Window):
             'Players',
             self.make_page_menu('player', self.player_page, '<Control>P'))
 
+        menu_bar.add_menu('_Help', [
+            StockMenuItem(Gtk.STOCK_INFO, self.on_info)
+        ])
+
+    def on_info(self, widget):
+        dialog = Gtk.AboutDialog.new()
+        dialog.set_program_name('trfedit')
+        dialog.set_authors(['Oshgnacknak'])
+        dialog.set_website('https://github.com/sklangen/trfedit')
+        dialog.set_license_type(Gtk.License.GPL_3_0)
+
+        dialog.run()
+        dialog.destroy()
+
     def make_page_menu(self, element_name, page, new_accelerator):
         def on_new(widget):
             self.focus_page(page)
