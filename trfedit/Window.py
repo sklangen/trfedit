@@ -2,7 +2,7 @@ from gi.repository import Gtk
 import traceback
 import trf
 
-from .MenuBar import MenuBar
+from .MenuBar import MenuBar, StockMenuItem, SeperatorMenuItem, LabeledMenuItem
 from .PlayerBackend import PlayerBackend
 from .RoundDatesBackend import RoundDatesBackend
 from .TournamentPage import TournamentPage
@@ -54,26 +54,55 @@ class Window(Gtk.Window):
 
         self.connect('delete-event', self.on_quit)
 
-        # TODO:
-        # players: List[Player] = field(default_factory=list)
-        # teams: List[str] = field(default_factory=list)
+        # TODO: teams: List[str] = field(default_factory=list)
 
         menu_bar.add_menu('_File', [
-            (Gtk.STOCK_NEW,     '<Control>N',           self.on_file_new),
-            (Gtk.STOCK_OPEN,    '<Control>O',           self.on_file_open),
-            (Gtk.STOCK_SAVE,    '<Control>S',           self.on_file_save),
-            (Gtk.STOCK_SAVE_AS, '<Shift><Control>S',    self.on_file_save_as),
-            (Gtk.STOCK_QUIT,    '<Control>Q',           self.on_quit)
+            StockMenuItem(Gtk.STOCK_NEW,     self.on_file_new,        '<Control>N'),
+            StockMenuItem(Gtk.STOCK_OPEN,    self.on_file_open,       '<Control>O'),
+            StockMenuItem(Gtk.STOCK_SAVE,    self.on_file_save,       '<Control>S'),
+            StockMenuItem(Gtk.STOCK_SAVE_AS, self.on_file_save_as,    '<Shift><Control>S'),
+            SeperatorMenuItem(),
+            StockMenuItem(Gtk.STOCK_QUIT,    self.on_quit,            '<Control>Q')
         ])
 
-        menu_bar.add_menu('Round Dates', [
-            # TODO: This is not a "stock" action
-            (Gtk.STOCK_NEW, '<Control>R',   self.on_new_rounddate)
-        ])
+        menu_bar.add_menu(
+            'Round Dates',
+            self.make_page_menu('round date', self.rounddates_page, '<Control>R'))
 
-    def on_new_rounddate(self, widget):
-        self.focus_page(self.rounddates_page)
-        self.rounddates_page.on_new(widget)
+        menu_bar.add_menu(
+            'XX Fields',
+            self.make_page_menu('xx field', self.xx_fields_page, '<Control>X'))
+
+        menu_bar.add_menu(
+            'Players',
+            self.make_page_menu('player', self.player_page, '<Control>P'))
+
+    def make_page_menu(self, element_name, page, new_accelerator):
+        def on_new(widget):
+            self.focus_page(page)
+            page.on_new(widget)
+
+        def on_remove(widget):
+            if self.is_page_focused(page):
+                page.on_remove(widget)
+
+        def on_up(widget):
+            if self.is_page_focused(page):
+                page.on_up(widget)
+
+        def on_down(widget):
+            if self.is_page_focused(page):
+                page.on_down(widget)
+
+        return [
+            LabeledMenuItem(f'New {element_name}',       on_new, new_accelerator),
+            LabeledMenuItem(f'Remove {element_name}',    on_remove),
+            LabeledMenuItem(f'Move {element_name} up',   on_up),
+            LabeledMenuItem(f'Move {element_name} down', on_down)
+        ]
+
+    def is_page_focused(self, page):
+        return self.notebook.page_num(page) == self.notebook.get_current_page()
 
     def focus_page(self, page):
         self.notebook.set_current_page(self.notebook.page_num(page))
