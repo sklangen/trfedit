@@ -90,7 +90,6 @@ class PlayerBackend(TreeViewPageBackend):
             self.store[path][7] = text
             self.win.on_unsaved_changes()
 
-
     def on_points_edited(self, widget, path, text):
         try:
             points = float(text)
@@ -171,18 +170,19 @@ class PlayerBackend(TreeViewPageBackend):
 
     def remove_row_from_data(self, index):
         startrank = self.tournament.players[index].startrank
-        del self.tournament.players[index]
 
-        for player in self.tournament.players:
+        for i, player in enumerate(self.tournament.players):
             player.games = list(filter(lambda g: g.startrank != startrank,
                                        player.games))
             for game in player.games:
                 if game.startrank > startrank:
                     game.startrank -= 1
 
-        for i, player in enumerate(self.tournament.players[index:]):
-            player.startrank -= 1
-            self.store[index+i][0] = player.startrank
+            if player.startrank > startrank:
+                player.startrank -= 1
+                self.store[i][0] = player.startrank
+
+        del self.tournament.players[index]
 
     def __len__(self):
         return len(self.tournament.players)
