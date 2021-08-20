@@ -103,12 +103,20 @@ class Window(Gtk.Window):
             if response == Gtk.ResponseType.YES:
                 self.save_tournament(self.tournament_path)
             else:
-                self.unsaved_changes = False
+                self.on_saved_changes()
 
             dialog.destroy()
 
     def update_title(self):
-        self.set_title(self.tournament_path + ' - trfedit')
+        title = 'trfedit'
+
+        if self.tournament_path is not None:
+            title = self.tournament_path + ' - ' + title
+
+        if self.unsaved_changes:
+            title = '*' + title
+
+        self.set_title(title)
 
     def on_file_open(self, widget):
         self.ensure_changes_saved()
@@ -139,7 +147,11 @@ class Window(Gtk.Window):
             return
 
         self.tournament_path = path
+        self.on_saved_changes()
+
+    def on_saved_changes(self):
         self.unsaved_changes = False
+        self.update_title()
 
     def ask_for_tournament_path(self):
         path = None
@@ -172,6 +184,7 @@ class Window(Gtk.Window):
 
     def on_unsaved_changes(self):
         self.unsaved_changes = True
+        self.update_title()
 
     def on_quit(self, widget, event=None):
         self.quit()
@@ -186,9 +199,10 @@ class Window(Gtk.Window):
         self.rounddates_backend.set_tournament(tournament)
         self.xx_fields_backend.set_tournament(tournament)
         self.player_backend.set_tournament(tournament)
-        self.tournament_path = None
+        self.on_saved_changes()
 
     def set_tournament_to_new_tournament(self):
+        self.tournament_path = None
         self.set_tournament(trf.Tournament(name='Unnamed Tournament'))
 
     def set_tournament_by_path(self, path):
@@ -196,9 +210,8 @@ class Window(Gtk.Window):
             with open(path, 'r') as f:
                 tour = trf.load(f)
 
-            self.set_tournament(tour)
             self.tournament_path = path
-            self.update_title()
+            self.set_tournament(tour)
         except Exception as e:
             self.show_error_dialog('Error reading tournament', str(e))
             traceback.print_exc()
