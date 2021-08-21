@@ -201,3 +201,18 @@ class PlayerBackend(TreeViewBackend):
 class PlayerPage(TreeView):
     def __init__(self, win):
         super().__init__(win, PlayerBackend(win))
+
+        games_button = Gtk.Button.new_with_mnemonic('Games')
+        games_button.connect('clicked', self.on_games)
+        self.action_bar.add(games_button)
+
+    def on_games(self, widget):
+        index = self.get_selected_row()
+        if index is not None:
+            dialog = GamesDialog(self.win, index)
+
+            response = dialog.run()
+            dialog.destroy()
+
+            if response == Gtk.ResponseType.OK:
+                print('Save games', index)
