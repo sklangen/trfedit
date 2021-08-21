@@ -248,6 +248,8 @@ class Window(Gtk.Window):
         self.set_tournament(trf.Tournament(name='Unnamed Tournament'))
 
     def set_tournament_by_path(self, path):
+        tour = None
+
         try:
             with open(path, 'r') as f:
                 tour = trf.load(f)
@@ -258,5 +260,6 @@ class Window(Gtk.Window):
             if self.tournament is None:
                 self.set_tournament_to_new_tournament()
 
-        self.tournament_path = path
-        self.set_tournament(tour)
+        if tour is not None:
+            self.tournament_path = path
+            self.set_tournament(tour)
