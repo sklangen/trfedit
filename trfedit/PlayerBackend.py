@@ -214,6 +214,3 @@ class PlayerPage(TreeView):
 
             response = dialog.run()
             dialog.destroy()
-
-            if response == Gtk.ResponseType.OK:
-                print('Save games', index)
