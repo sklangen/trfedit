@@ -5,9 +5,25 @@ from .TreeView import TreeViewBackend, TreeView, TextColumn, ComboColumn
 
 
 color_store = Gtk.ListStore(str, str)
-color_store.append([' ', ' '])
+color_store.append([' ', ''])
 color_store.append(['w', 'White'])
 color_store.append(['b', 'Black'])
+
+
+def get_color_name(color):
+    if color in 'wW':
+        return 'White'
+    if color in 'bB':
+        return 'Black'
+    return ''
+
+
+def get_opponent_color(color):
+    if color in 'wW':
+        return 'b'
+    if color in 'bB':
+        return 'w'
+    return ''
 
 
 class GamesBackend(TreeViewBackend):
@@ -24,32 +40,36 @@ class GamesBackend(TreeViewBackend):
         self.player = win.tournament.players[index]
 
         for i, game in enumerate(self.player.games):
-            self.append_game_to_store(i+1, game)
+            self.append_game_to_store(game)
 
-    def append_game_to_store(self, round, game):
+    def append_game_to_store(self, game):
         self.store.append([
-            round,
+            game.round,
             game.startrank,
-            self.get_color_name(game.color),
+            get_color_name(game.color),
             game.result
         ])
-
-    def get_color_name(self, color):
-        if color in 'wW':
-            return 'White'
-        if color in 'bB':
-            return 'Black'
-        return ''
 
     def on_opponent_changed(self, widget, path, text):
         pass
 
-    def on_color_changed(self, widget, path, option, *a):
-        # TODO: update opponents color
+    def on_color_changed(self, widget, path, option):
         key, value = color_store[option]
-        self.player.games[int(path)].color = key
+        index = int(path)
+        game = self.player.games[index]
+
+        game.color = key
         self.store[path][2] = value
+
+        opponent = self.get_player_by_startrank(game.startrank)
+        if opponent is not None:
+            opponent.games[index].color = get_opponent_color(key)
+
         self.win.on_unsaved_changes()
+
+    def get_player_by_startrank(self, startrank):
+        return next(filter(lambda p: p.startrank == startrank,
+                           self.win.tournament.players), None)
 
     def on_result_changed(self, widget, path, text):
         pass
