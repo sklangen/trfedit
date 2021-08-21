@@ -4,26 +4,45 @@ from trf import Game
 from .TreeView import TreeViewBackend, TreeView, TextColumn, ComboColumn
 
 
-color_store = Gtk.ListStore(str, str)
-color_store.append([' ', ''])
-color_store.append(['w', 'White'])
-color_store.append(['b', 'Black'])
+class ComboStore(Gtk.ListStore):
+    def __init__(self, selectables):
+        super().__init__(str, str, str)
+
+        for selectable in selectables:
+            self.append(selectable)
+
+    def get_name(self, key):
+        for k, name, _ in self:
+            if k == key:
+                return name
+
+    def get_opposite(self, key):
+        for k, _, opposite in self:
+            if k == key:
+                return opposite
 
 
-def get_color_name(color):
-    if color in 'wW':
-        return 'White'
-    if color in 'bB':
-        return 'Black'
-    return ''
+color_store = ComboStore([
+    [' ', '', None],
+    ['w', 'White', 'b'],
+    ['b', 'Black', 'w']
+])
 
 
-def get_opponent_color(color):
-    if color in 'wW':
-        return 'b'
-    if color in 'bB':
-        return 'w'
-    return ''
+result_store = ComboStore([
+    [' ', '', None],
+    ['1', 'Win', '0'],
+    ['=', 'Draw', '='],
+    ['0', 'Loss', '1'],
+    ['w', 'Win but no move played', 'l'],
+    ['d', 'Draw but no move played', 'd'],
+    ['l', 'Loss but no move played', 'w'],
+    ['+', 'Forfeit win', '-'],
+    ['-', 'Forfeit loss', '+'],
+    ['h', 'Half point bye', None],
+    ['f', 'Full point bye', None],
+    ['u', 'Unpaired', None]
+])
 
 
 class GamesBackend(TreeViewBackend):
@@ -46,7 +65,7 @@ class GamesBackend(TreeViewBackend):
         self.store.append([
             game.round,
             game.startrank,
-            get_color_name(game.color),
+            color_store.get_name(game.color),
             game.result
         ])
 
@@ -54,16 +73,17 @@ class GamesBackend(TreeViewBackend):
         pass
 
     def on_color_changed(self, widget, path, option):
-        key, value = color_store[option]
+        key, value, opposite = color_store[option]
         index = int(path)
         game = self.player.games[index]
 
         game.color = key
         self.store[path][2] = value
 
-        opponent = self.get_player_by_startrank(game.startrank)
-        if opponent is not None:
-            opponent.games[index].color = get_opponent_color(key)
+        if opposite is not None:
+            opponent = self.get_player_by_startrank(game.startrank)
+            if opponent is not None:
+                opponent.games[index].color = opposite
 
         self.win.on_unsaved_changes()
 
