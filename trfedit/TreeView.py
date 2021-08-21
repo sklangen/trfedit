@@ -59,25 +59,25 @@ class TreeView(Gtk.Box):
         self.scroll.add(self.treeview)
         self.pack_start(self.scroll, True, True, 0)
 
-        action_bar = Gtk.ActionBar()
+        self.action_bar = Gtk.ActionBar()
 
         new_button = Gtk.Button.new_from_stock(Gtk.STOCK_ADD)
         new_button.connect('clicked', self.on_new)
-        action_bar.add(new_button)
+        self.action_bar.add(new_button)
 
         remove_button = Gtk.Button.new_from_stock(Gtk.STOCK_REMOVE)
         remove_button.connect('clicked', self.on_remove)
-        action_bar.add(remove_button)
+        self.action_bar.add(remove_button)
 
         up_button = Gtk.Button.new_from_stock(Gtk.STOCK_GO_UP)
         up_button.connect('clicked', self.on_up)
-        action_bar.add(up_button)
+        self.action_bar.add(up_button)
 
         down_button = Gtk.Button.new_from_stock(Gtk.STOCK_GO_DOWN)
         down_button.connect('clicked', self.on_down)
-        action_bar.add(down_button)
+        self.action_bar.add(down_button)
 
-        self.pack_start(action_bar, False, False, 0)
+        self.pack_start(self.action_bar, False, False, 0)
 
     def on_key_typed(self, widget, event):
         if event.keyval in (Gdk.KEY_Delete, Gdk.KEY_BackSpace):
