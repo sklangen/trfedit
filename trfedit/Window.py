@@ -41,16 +41,11 @@ class Window(Gtk.Window):
             self.xx_fields_page,
             Gtk.Label(label='XX Fields'))
 
-        self.crosstable_page = CrosstablePage(self)
-        self.player_backend = PlayerBackend(self, self.crosstable_page)
+        self.player_backend = PlayerBackend(self)
         self.player_page = TreeViewPage(self, self.player_backend)
         self.notebook.append_page(
             self.player_page,
             Gtk.Label(label='Players'))
-
-        self.notebook.append_page(
-            self.crosstable_page,
-            Gtk.Label(label='Crosstable'))
 
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         vbox.pack_start(menu_bar, False, False, 0)
@@ -248,7 +243,6 @@ class Window(Gtk.Window):
         self.rounddates_backend.set_tournament(tournament)
         self.xx_fields_backend.set_tournament(tournament)
         self.player_backend.set_tournament(tournament)
-        self.crosstable_page.set_tournament(tournament)
         self.on_saved_changes()
 
     def set_tournament_to_new_tournament(self):
