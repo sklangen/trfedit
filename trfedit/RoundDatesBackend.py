@@ -3,13 +3,13 @@ from gi.repository import Gtk
 import datetime
 import re
 
-from .TreeViewPage import TreeViewPageBackend
+from .TreeView import TreeViewBackend
 
 
 DATE_FORMAT = '%y/%m/%d'
 
 
-class RoundDatesBackend(TreeViewPageBackend):
+class RoundDatesBackend(TreeViewBackend):
     def __init__(self, win):
         super().__init__(Gtk.ListStore(int, str), [
             ('Round', None),

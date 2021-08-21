@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from gi.repository import Gtk, Gdk
 
 
-class TreeViewPageBackend(ABC):
+class TreeViewBackend(ABC):
     def __init__(self, store, columns):
         self.store = store
         self.columns = columns
@@ -35,7 +35,7 @@ class TreeViewPageBackend(ABC):
         self.store.swap(self.iter_for_row(i1), self.iter_for_row(i2))
 
 
-class TreeViewPage(Gtk.Box):
+class TreeView(Gtk.Box):
     def __init__(self, win, backend):
         super().__init__(orientation=Gtk.Orientation.VERTICAL)
         self.win = win

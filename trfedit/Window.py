@@ -2,12 +2,11 @@ from gi.repository import Gtk
 import traceback
 import trf
 
-from .CrosstablePage import CrosstablePage
 from .MenuBar import MenuBar, StockMenuItem, SeperatorMenuItem, LabeledMenuItem
-from .PlayerBackend import PlayerBackend
+from .PlayerBackend import PlayerPage
 from .RoundDatesBackend import RoundDatesBackend
 from .TournamentPage import TournamentPage
-from .TreeViewPage import TreeViewPage
+from .TreeView import TreeView
 from .XXFieldsBackend import XXFieldsBackend
 
 
@@ -30,19 +29,18 @@ class Window(Gtk.Window):
             Gtk.Label(label='Tournament'))
 
         self.rounddates_backend = RoundDatesBackend(self)
-        self.rounddates_page = TreeViewPage(self, self.rounddates_backend)
+        self.rounddates_page = TreeView(self, self.rounddates_backend)
         self.notebook.append_page(
             self.rounddates_page,
             Gtk.Label(label='Round Dates'))
 
         self.xx_fields_backend = XXFieldsBackend(self)
-        self.xx_fields_page = TreeViewPage(self, self.xx_fields_backend)
+        self.xx_fields_page = TreeView(self, self.xx_fields_backend)
         self.notebook.append_page(
             self.xx_fields_page,
             Gtk.Label(label='XX Fields'))
 
-        self.player_backend = PlayerBackend(self)
-        self.player_page = TreeViewPage(self, self.player_backend)
+        self.player_page = PlayerPage(self)
         self.notebook.append_page(
             self.player_page,
             Gtk.Label(label='Players'))
@@ -242,7 +240,7 @@ class Window(Gtk.Window):
         self.tournament_page.set_tournament(tournament)
         self.rounddates_backend.set_tournament(tournament)
         self.xx_fields_backend.set_tournament(tournament)
-        self.player_backend.set_tournament(tournament)
+        self.player_page.backend.set_tournament(tournament)
         self.on_saved_changes()
 
     def set_tournament_to_new_tournament(self):

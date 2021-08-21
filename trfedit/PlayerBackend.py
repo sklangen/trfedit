@@ -1,10 +1,10 @@
 from gi.repository import Gtk
 from trf import Player
 
-from .TreeViewPage import TreeViewPageBackend
+from .TreeView import TreeViewBackend, TreeView
 
 
-class PlayerBackend(TreeViewPageBackend):
+class PlayerBackend(TreeViewBackend):
     def __init__(self, win):
         super().__init__(Gtk.ListStore(int, str, str, str, int,
                                        str, int, str, str, int), [
@@ -196,3 +196,8 @@ class PlayerBackend(TreeViewPageBackend):
         self.store.clear()
         for player in tournament.players:
             self.append_player_to_store(player)
+
+
+class PlayerPage(TreeView):
+    def __init__(self, win):
+        super().__init__(win, PlayerBackend(win))
