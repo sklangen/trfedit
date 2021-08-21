@@ -1,46 +1,47 @@
 from gi.repository import Gtk
 from trf import Player
 
-from .TreeView import TreeViewBackend, TreeView
+from .GamesDialog import GamesDialog
+from .TreeView import TreeViewBackend, TreeView, TextColumn
 
 
 class PlayerBackend(TreeViewBackend):
     def __init__(self, win):
         super().__init__(Gtk.ListStore(int, str, str, str, int,
                                        str, int, str, str, int), [
-            ('Start Rank', None),
-            ('Name', self.on_name_edited),
-            ('Sex', self.on_sex_edited),
-            ('Title', self.on_title_edited),
-            ('Rating', self.on_rating_edited),
-            ('Federation', self.on_fed_edited),
-            ('ID', self.on_id_edited),
-            ('Date of Birth', self.on_birthdate_edited),
-            ('Points', self.on_points_edited),
-            ('Rank', self.on_rank_edited)
+            TextColumn('Start Rank'),
+            TextColumn('Name', self.on_name_changed),
+            TextColumn('Sex', self.on_sex_changed),
+            TextColumn('Title', self.on_title_changed),
+            TextColumn('Rating', self.on_rating_changed),
+            TextColumn('Federation', self.on_fed_changed),
+            TextColumn('ID', self.on_id_changed),
+            TextColumn('Date of Birth', self.on_birthdate_changed),
+            TextColumn('Points', self.on_points_changed),
+            TextColumn('Rank', self.on_rank_changed)
         ])
         self.win = win
 
-    def on_name_edited(self, widget, path, text):
+    def on_name_changed(self, widget, path, text):
         if self.check_text_len(text, 33):
             index = int(path)
             self.tournament.players[index].name = text
             self.store[path][1] = text
             self.win.on_unsaved_changes()
 
-    def on_sex_edited(self, widget, path, text):
+    def on_sex_changed(self, widget, path, text):
         if self.check_text_len(text, 1):
             self.tournament.players[int(path)].sex = text
             self.store[path][2] = text
             self.win.on_unsaved_changes()
 
-    def on_title_edited(self, widget, path, text):
+    def on_title_changed(self, widget, path, text):
         if self.check_text_len(text, 3):
             self.tournament.players[int(path)].title = text
             self.store[path][3] = text
             self.win.on_unsaved_changes()
 
-    def on_rating_edited(self, widget, path, text):
+    def on_rating_changed(self, widget, path, text):
         rating = self.parse_int(text, 9999)
         if rating is not None:
             self.tournament.players[int(path)].rating = rating
@@ -64,7 +65,7 @@ class PlayerBackend(TreeViewBackend):
 
         return num
 
-    def on_fed_edited(self, widget, path, text):
+    def on_fed_changed(self, widget, path, text):
         if self.check_text_len(text, 3):
             self.tournament.players[int(path)].fed = text
             self.store[path][5] = text
@@ -78,20 +79,20 @@ class PlayerBackend(TreeViewBackend):
             return False
         return True
 
-    def on_id_edited(self, widget, path, text):
+    def on_id_changed(self, widget, path, text):
         id = self.parse_int(text)
         if id is not None:
             self.tournament.players[int(path)].id = id
             self.store[path][6] = id
             self.win.on_unsaved_changes()
 
-    def on_birthdate_edited(self, widget, path, text):
+    def on_birthdate_changed(self, widget, path, text):
         if self.check_text_len(text, 10):
             self.tournament.players[int(path)].birthdate = text
             self.store[path][7] = text
             self.win.on_unsaved_changes()
 
-    def on_points_edited(self, widget, path, text):
+    def on_points_changed(self, widget, path, text):
         try:
             points = float(text)
         except ValueError as e:
@@ -117,7 +118,7 @@ class PlayerBackend(TreeViewBackend):
     def format_points(self, points):
         return format(points, '.1f')
 
-    def on_rank_edited(self, widget, path, text):
+    def on_rank_changed(self, widget, path, text):
         rank = self.parse_int(text, 9999)
         if rank is not None:
             self.tournament.players[int(path)].rank = rank

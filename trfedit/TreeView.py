@@ -35,6 +35,48 @@ class TreeViewBackend(ABC):
         self.store.swap(self.iter_for_row(i1), self.iter_for_row(i2))
 
 
+class TreeViewColumn(ABC):
+    def __init__(self, title, on_changed=None):
+        self.title = title
+        self.on_changed = on_changed
+
+    @abstractmethod
+    def get_renderer(self):
+        pass
+
+
+class TextColumn(TreeViewColumn):
+    def __init__(self, title, on_changed=None):
+        super().__init__(title, on_changed)
+
+    def get_renderer(self):
+        renderer = Gtk.CellRendererText()
+
+        if self.on_changed is not None:
+            renderer.set_property('editable', True)
+            renderer.connect('edited', self.on_changed)
+
+        return renderer
+
+
+class ComboColumn(TreeViewColumn):
+    def __init__(self, title, store, on_changed):
+        super().__init__(title, on_changed)
+        self.store = store
+
+    def get_renderer(self):
+        renderer = Gtk.CellRendererCombo()
+
+        renderer.set_property('model', self.store)
+        renderer.set_property('text-column', 1)
+        renderer.set_property('has-entry', False)
+
+        renderer.set_property('editable', True)
+        renderer.connect('changed', self.on_changed)
+
+        return renderer
+
+
 class TreeView(Gtk.Box):
     def __init__(self, win, backend):
         super().__init__(orientation=Gtk.Orientation.VERTICAL)
@@ -47,14 +89,9 @@ class TreeView(Gtk.Box):
         self.treeview = Gtk.TreeView(model=self.backend.store)
         self.treeview.connect('key-press-event', self.on_key_typed)
 
-        for i, (title, on_edited) in enumerate(self.backend.columns):
-            renderer = Gtk.CellRendererText()
-            column = Gtk.TreeViewColumn(title, renderer, text=i)
+        for i, column in enumerate(self.backend.columns):
+            column = Gtk.TreeViewColumn(column.title, column.get_renderer(), text=i)
             self.treeview.append_column(column)
-
-            if on_edited is not None:
-                renderer.set_property('editable', True)
-                renderer.connect('edited', on_edited)
 
         self.scroll.add(self.treeview)
         self.pack_start(self.scroll, True, True, 0)

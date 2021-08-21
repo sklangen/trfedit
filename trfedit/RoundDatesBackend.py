@@ -3,7 +3,7 @@ from gi.repository import Gtk
 import datetime
 import re
 
-from .TreeView import TreeViewBackend
+from .TreeView import TreeViewBackend, TextColumn
 
 
 DATE_FORMAT = '%y/%m/%d'
@@ -12,8 +12,8 @@ DATE_FORMAT = '%y/%m/%d'
 class RoundDatesBackend(TreeViewBackend):
     def __init__(self, win):
         super().__init__(Gtk.ListStore(int, str), [
-            ('Round', None),
-            ('Date', self.on_date_edited)
+            TextColumn('Round', None),
+            TextColumn('Date', self.on_date_changed)
         ])
         self.win = win
 
@@ -36,7 +36,7 @@ class RoundDatesBackend(TreeViewBackend):
         self.store[i1][1] = b
         self.store[i2][1] = a
 
-    def on_date_edited(self, widget, path, text):
+    def on_date_changed(self, widget, path, text):
         if re.search('\\s+', text):
             self.win.show_error_dialog('Invalid round date',
                                        'No whitespace allowed in round dates')
@@ -58,3 +58,4 @@ class RoundDatesBackend(TreeViewBackend):
         self.store.clear()
         for i, date in enumerate(tournament.rounddates):
             self.store.append([i+1, date])
+

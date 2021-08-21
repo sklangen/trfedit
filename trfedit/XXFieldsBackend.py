@@ -2,7 +2,7 @@ from gi.repository import Gtk
 
 import re
 
-from .TreeView import TreeViewBackend
+from .TreeView import TreeViewBackend, TextColumn
 
 
 XX_FIELD_PATTERN = re.compile('XX[\\w\\d-]+')
@@ -11,8 +11,8 @@ XX_FIELD_PATTERN = re.compile('XX[\\w\\d-]+')
 class XXFieldsBackend(TreeViewBackend):
     def __init__(self, win):
         super().__init__(Gtk.ListStore(str, str), [
-            ('Name', self.on_name_edited),
-            ('Value', self.on_value_edited)
+            TextColumn('Name',  self.on_name_changed),
+            TextColumn('Value', self.on_value_changed)
         ])
         self.win = win
         self.tournament = None
@@ -37,7 +37,7 @@ class XXFieldsBackend(TreeViewBackend):
     def swap_rows(self, i1, i2):
         self.swap_store_rows(i1, i2)
 
-    def on_name_edited(self, widget, path, text):
+    def on_name_changed(self, widget, path, text):
         if not XX_FIELD_PATTERN.fullmatch(text):
             self.win.show_error_dialog('Invalid XX field name',
                                        'Must be "XX" folled by alphanumeric text without spaces')
@@ -58,7 +58,7 @@ class XXFieldsBackend(TreeViewBackend):
         self.store[path][0] = text
         self.win.on_unsaved_changes()
 
-    def on_value_edited(self, widget, path, text):
+    def on_value_changed(self, widget, path, text):
         name = self.store[path][0]
         self.store[path][1] = text
         self.tournament.xx_fields[name] = text
