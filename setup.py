@@ -5,7 +5,7 @@ with open('README.md') as f:
 
 setup(
     name='trfedit',
-    version='0.0.1',
+    version='1.0.0',
     author='Schachklub Langen e. V.',
     author_email='Turnierleiter@sklangen.de',
     description='A GUI editor for the fide approved tournament report format: trf',
@@ -16,7 +16,7 @@ setup(
     long_description_content_type='text/markdown',
     url='https://github.com/sklangen/trfedit',
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: End Users/Desktop',
         'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
         'Operating System :: OS Independent',
