@@ -89,11 +89,10 @@ class GamesBackend(TreeViewBackend):
     def on_opponent_changed(self, widget, path, option):
         startrank, name = self.player_store[option]
         index = int(path)
-        game = self.player.games[index]
 
-        old_opponent = self.get_player_by_startrank(game.startrank)
-        if old_opponent is not None:
-            old_opponent.games[index] = self.make_blank_game(game.round)
+        self.blank_out_game(index)
+
+        game = self.player.games[index]
 
         new_opponent = self.get_player_by_startrank(startrank)
         if new_opponent is not None:
@@ -103,23 +102,30 @@ class GamesBackend(TreeViewBackend):
         game.startrank = startrank
         self.store[path][1] = name
 
-        game.color = ' '
-        self.store[path][2] = ''
-
-        game.result = ' '
-        self.store[path][3] = ''
-
         self.win.on_unsaved_changes()
+
+    def blank_out_game(self, index):
+        game = self.player.games[index]
+
+        self.player.games[index] = self.make_blank_game(game.round)
+        self.store[index] = [game.round, '', '', '']
+
+        opponent = self.get_player_by_startrank(game.startrank)
+        if opponent is not None:
+            opponent.games[index] = self.make_blank_game(game.round)
 
     def on_color_changed(self, widget, path, option):
         key, value, opposite = color_store[option]
         index = int(path)
-        game = self.player.games[index]
 
-        game.color = key
-        self.store[path][2] = value
+        if opposite is None:
+            self.blank_out_game(index)
+        else:
+            game = self.player.games[index]
 
-        if opposite is not None:
+            game.color = key
+            self.store[path][2] = value
+
             opponent = self.get_player_by_startrank(game.startrank)
             if opponent is not None:
                 opponent.games[index].color = opposite
@@ -133,15 +139,18 @@ class GamesBackend(TreeViewBackend):
     def on_result_changed(self, widget, path, option):
         key, value, opposite = result_store[option]
         index = int(path)
+
+        if opposite is None:
+            self.blank_out_game(index)
+
         game = self.player.games[index]
+        opponent = self.get_player_by_startrank(game.startrank)
 
-        game.result = key
+        if opponent is not None:
+            opponent.games[index].result = opposite
+
+        self.player.games[index].result = key
         self.store[path][3] = value
-
-        if opposite is not None:
-            opponent = self.get_player_by_startrank(game.startrank)
-            if opponent is not None:
-                opponent.games[index].result = opposite
 
         self.win.on_unsaved_changes()
 
