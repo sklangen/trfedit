@@ -61,14 +61,17 @@ result_store = OppositeComboStore([
 
 class GamesBackend(TreeViewBackend):
     def __init__(self, win, index):
-        super().__init__(Gtk.ListStore(int, int, str, str), [
+        player_store = make_player_store(win.tournament.players)
+        super().__init__(Gtk.ListStore(int, str, str, str), [
             TextColumn('Round'),
-            TextColumn('Opponent', self.on_opponent_changed),
+            ComboColumn('Opponent', player_store, self.on_opponent_changed),
             ComboColumn('Color', color_store, self.on_color_changed),
             TextColumn('Result', self.on_result_changed)
         ])
         self.win = win
         self.index = index
+
+        self.player_store = player_store
 
         self.player = win.tournament.players[index]
 
@@ -78,13 +81,35 @@ class GamesBackend(TreeViewBackend):
     def append_game_to_store(self, game):
         self.store.append([
             game.round,
-            game.startrank,
+            self.player_store.get_name(game.startrank),
             color_store.get_name(game.color),
             game.result
         ])
 
-    def on_opponent_changed(self, widget, path, text):
-        pass
+    def on_opponent_changed(self, widget, path, option):
+        startrank, name = self.player_store[option]
+        index = int(path)
+        game = self.player.games[index]
+
+        old_opponent = self.get_player_by_startrank(game.startrank)
+        if old_opponent is not None:
+            old_opponent.games[index] = self.make_blank_game(game.round)
+
+        new_opponent = self.get_player_by_startrank(startrank)
+        if new_opponent is not None:
+            new_opponent.games[index] = self.make_blank_game(game.round)
+            new_opponent.games[index].startrank = self.player.startrank
+
+        game.startrank = startrank
+        self.store[path][1] = name
+
+        game.color = ' '
+        self.store[path][2] = ''
+
+        game.result = ' '
+        self.store[path][3] = ''
+
+        self.win.on_unsaved_changes()
 
     def on_color_changed(self, widget, path, option):
         key, value, opposite = color_store[option]
@@ -110,8 +135,15 @@ class GamesBackend(TreeViewBackend):
 
     def append_new_row(self):
         round = len(self.store)
-        self.append_game_to_store(round, Game())
+        self.append_game_to_store(self.make_blank_game(round))
         return round
+
+    def make_blank_game(self, round):
+        return Game(
+            startrank=None,
+            color=' ',
+            result=' ',
+            round=round)
 
     def swap_rows(self, i1, i2):
         self.swap_store_rows(i1, i2)
