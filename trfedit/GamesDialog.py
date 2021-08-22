@@ -66,7 +66,7 @@ class GamesBackend(TreeViewBackend):
             TextColumn('Round'),
             ComboColumn('Opponent', player_store, self.on_opponent_changed),
             ComboColumn('Color', color_store, self.on_color_changed),
-            TextColumn('Result', self.on_result_changed)
+            ComboColumn('Result', result_store, self.on_result_changed)
         ])
         self.win = win
         self.index = index
@@ -83,7 +83,7 @@ class GamesBackend(TreeViewBackend):
             game.round,
             self.player_store.get_name(game.startrank),
             color_store.get_name(game.color),
-            game.result
+            result_store.get_name(game.result)
         ])
 
     def on_opponent_changed(self, widget, path, option):
@@ -130,8 +130,20 @@ class GamesBackend(TreeViewBackend):
         return next(filter(lambda p: p.startrank == startrank,
                            self.win.tournament.players), None)
 
-    def on_result_changed(self, widget, path, text):
-        pass
+    def on_result_changed(self, widget, path, option):
+        key, value, opposite = result_store[option]
+        index = int(path)
+        game = self.player.games[index]
+
+        game.result = key
+        self.store[path][3] = value
+
+        if opposite is not None:
+            opponent = self.get_player_by_startrank(game.startrank)
+            if opponent is not None:
+                opponent.games[index].result = opposite
+
+        self.win.on_unsaved_changes()
 
     def append_new_row(self):
         round = len(self.store)
