@@ -75,6 +75,10 @@ class GamesBackend(TreeViewBackend):
 
         self.player = win.tournament.players[index]
 
+        while len(self.player.games) < self.win.tournament.numrounds:
+            self.player.games.append(
+                self.make_blank_game(len(self.player.games)+1))
+
         for i, game in enumerate(self.player.games):
             self.append_game_to_store(game)
 
