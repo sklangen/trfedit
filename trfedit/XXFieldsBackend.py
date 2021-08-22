@@ -2,13 +2,14 @@ from gi.repository import Gtk
 
 import re
 
-from .TreeView import TreeViewBackend, TextColumn
+from .TreeView import TextColumn
+from .TreeViewPage import TreeViewPageBackend
 
 
 XX_FIELD_PATTERN = re.compile('XX[\\w\\d-]+')
 
 
-class XXFieldsBackend(TreeViewBackend):
+class XXFieldsBackend(TreeViewPageBackend):
     def __init__(self, win):
         super().__init__(Gtk.ListStore(str, str), [
             TextColumn('Name',  self.on_name_changed),

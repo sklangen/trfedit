@@ -2,10 +2,11 @@ from gi.repository import Gtk
 from trf import Player
 
 from .GamesDialog import GamesDialog
-from .TreeView import TreeViewBackend, TreeView, TextColumn
+from .TreeView import TextColumn
+from .TreeViewPage import TreeViewPageBackend, TreeViewPage
 
 
-class PlayerBackend(TreeViewBackend):
+class PlayerBackend(TreeViewPageBackend):
     def __init__(self, win):
         super().__init__(Gtk.ListStore(int, str, str, str, int,
                                        str, int, str, str, int), [
@@ -207,7 +208,7 @@ class PlayerBackend(TreeViewBackend):
             self.tournament.players))
 
 
-class PlayerPage(TreeView):
+class PlayerPage(TreeViewPage):
     def __init__(self, win):
         super().__init__(win, PlayerBackend(win))
 
@@ -219,6 +220,5 @@ class PlayerPage(TreeView):
         index = self.get_selected_row()
         if index is not None:
             dialog = GamesDialog(self.win, index)
-
-            response = dialog.run()
+            dialog.run()
             dialog.destroy()

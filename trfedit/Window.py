@@ -6,7 +6,7 @@ from .MenuBar import MenuBar, StockMenuItem, SeperatorMenuItem, LabeledMenuItem
 from .PlayerBackend import PlayerPage
 from .RoundDatesBackend import RoundDatesBackend
 from .TournamentPage import TournamentPage
-from .TreeView import TreeView
+from .TreeViewPage import TreeViewPage
 from .XXFieldsBackend import XXFieldsBackend
 
 
@@ -29,13 +29,13 @@ class Window(Gtk.Window):
             Gtk.Label(label='Tournament'))
 
         self.rounddates_backend = RoundDatesBackend(self)
-        self.rounddates_page = TreeView(self, self.rounddates_backend)
+        self.rounddates_page = TreeViewPage(self, self.rounddates_backend)
         self.notebook.append_page(
             self.rounddates_page,
             Gtk.Label(label='Round Dates'))
 
         self.xx_fields_backend = XXFieldsBackend(self)
-        self.xx_fields_page = TreeView(self, self.xx_fields_backend)
+        self.xx_fields_page = TreeViewPage(self, self.xx_fields_backend)
         self.notebook.append_page(
             self.xx_fields_page,
             Gtk.Label(label='XX Fields'))

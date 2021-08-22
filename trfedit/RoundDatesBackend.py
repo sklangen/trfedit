@@ -3,13 +3,14 @@ from gi.repository import Gtk
 import datetime
 import re
 
-from .TreeView import TreeViewBackend, TextColumn
+from .TreeView import TextColumn
+from .TreeViewPage import TreeViewPageBackend
 
 
 DATE_FORMAT = '%y/%m/%d'
 
 
-class RoundDatesBackend(TreeViewBackend):
+class RoundDatesBackend(TreeViewPageBackend):
     def __init__(self, win):
         super().__init__(Gtk.ListStore(int, str), [
             TextColumn('Round', None),
@@ -58,4 +59,3 @@ class RoundDatesBackend(TreeViewBackend):
         self.store.clear()
         for i, date in enumerate(tournament.rounddates):
             self.store.append([i+1, date])
-
