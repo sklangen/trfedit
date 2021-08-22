@@ -75,12 +75,13 @@ class GamesBackend(TreeViewBackend):
 
         self.player = win.tournament.players[index]
 
-        while len(self.player.games) < self.win.tournament.numrounds:
-            self.player.games.append(
-                self.make_blank_game(len(self.player.games)+1))
-
         for i, game in enumerate(self.player.games):
             self.append_game_to_store(game)
+
+    def pad_games(self, player, index):
+        while len(player.games) <= index:
+            player.games.append(
+                self.make_blank_game(len(player.games)+1))
 
     def append_game_to_store(self, game):
         self.store.append([
@@ -100,6 +101,7 @@ class GamesBackend(TreeViewBackend):
 
         new_opponent = self.get_player_by_startrank(startrank)
         if new_opponent is not None:
+            self.pad_games(new_opponent, index)
             new_opponent.games[index] = self.make_blank_game(game.round)
             new_opponent.games[index].startrank = self.player.startrank
 
@@ -116,7 +118,8 @@ class GamesBackend(TreeViewBackend):
 
         opponent = self.get_player_by_startrank(game.startrank)
         if opponent is not None:
-            opponent.games[index] = self.make_blank_game(game.round)
+            if len(opponent.games) >= index:
+                opponent.games[index] = self.make_blank_game(game.round)
 
     def on_color_changed(self, widget, path, option):
         key, value, opposite = color_store[option]
@@ -132,6 +135,7 @@ class GamesBackend(TreeViewBackend):
 
             opponent = self.get_player_by_startrank(game.startrank)
             if opponent is not None:
+                self.pad_games(opponent, index)
                 opponent.games[index].color = opposite
 
         self.win.on_unsaved_changes()
@@ -151,6 +155,7 @@ class GamesBackend(TreeViewBackend):
         opponent = self.get_player_by_startrank(game.startrank)
 
         if opponent is not None:
+            self.pad_games(opponent, index)
             opponent.games[index].result = opposite
 
         self.player.games[index].result = key
@@ -159,8 +164,12 @@ class GamesBackend(TreeViewBackend):
         self.win.on_unsaved_changes()
 
     def append_new_row(self):
-        round = len(self.store)
-        self.append_game_to_store(self.make_blank_game(round))
+        round = len(self.player.games)+1
+        game = self.make_blank_game(round)
+
+        self.append_game_to_store(game)
+        self.player.games.append(game)
+
         return round
 
     def make_blank_game(self, round):
@@ -170,14 +179,8 @@ class GamesBackend(TreeViewBackend):
             result=' ',
             round=round)
 
-    def swap_rows(self, i1, i2):
-        self.swap_store_rows(i1, i2)
-
-    def remove_row_from_data(self, index):
-        pass
-
     def __len__(self):
-        return len(self.store)
+        return len(self.player.games)
 
 
 class GamesDialog(Gtk.Dialog):
