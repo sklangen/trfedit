@@ -5,31 +5,45 @@ from .TreeView import TreeViewBackend, TreeView, TextColumn, ComboColumn
 
 
 class ComboStore(Gtk.ListStore):
-    def __init__(self, selectables):
-        super().__init__(str, str, str)
+    def __init__(self, types, selectables):
+        super().__init__(*types)
 
         for selectable in selectables:
             self.append(selectable)
 
     def get_name(self, key):
-        for k, name, _ in self:
-            if k == key:
-                return name
+        for option in self:
+            if option[0] == key:
+                return option[1]
+        return ''
+
+
+class OppositeComboStore(ComboStore):
+    def __init__(self, selectables):
+        super().__init__((str, str, str), selectables)
 
     def get_opposite(self, key):
         for k, _, opposite in self:
             if k == key:
                 return opposite
+        return None
 
 
-color_store = ComboStore([
+def make_player_store(players):
+    players = sorted(players, key=lambda p: p.name)
+    return ComboStore(
+        (int, str),
+        [None, ''] + [[p.startrank, p.name] for p in players])
+
+
+color_store = OppositeComboStore([
     [' ', '', None],
     ['w', 'White', 'b'],
     ['b', 'Black', 'w']
 ])
 
 
-result_store = ComboStore([
+result_store = OppositeComboStore([
     [' ', '', None],
     ['1', 'Win', '0'],
     ['=', 'Draw', '='],
