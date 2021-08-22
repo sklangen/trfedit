@@ -132,6 +132,7 @@ class PlayerBackend(TreeViewBackend):
         self.append_player_to_store(player)
 
         self.tournament.players.append(player)
+        self.update_numplayers()
 
         return index
 
@@ -187,6 +188,7 @@ class PlayerBackend(TreeViewBackend):
                 self.store[i][0] = player.startrank
 
         del self.tournament.players[index]
+        self.update_numplayers()
 
     def __len__(self):
         return len(self.tournament.players)
@@ -197,6 +199,12 @@ class PlayerBackend(TreeViewBackend):
         self.store.clear()
         for player in tournament.players:
             self.append_player_to_store(player)
+
+    def update_numplayers(self):
+        self.tournament.numplayers = len(self.tournament.players)
+        self.tournament.numplayers = len(filter(
+            lambda p: p.rating is not None and p.rating > 0,
+            self.tournament.players))
 
 
 class PlayerPage(TreeView):
