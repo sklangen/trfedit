@@ -74,7 +74,8 @@ class Window(Gtk.Window):
 
         menu_bar.add_menu(
             'Players',
-            self.make_page_menu('player', self.player_page, '<Control>P'))
+            self.make_page_menu('player', self.player_page, '<Control>P')
+            + self.make_games_menu())
 
         menu_bar.add_menu('_Help', [
             StockMenuItem(Gtk.STOCK_INFO, self.on_info)
@@ -89,6 +90,15 @@ class Window(Gtk.Window):
 
         dialog.run()
         dialog.destroy()
+
+    def make_games_menu(self):
+        def on_games(widget):
+            if self.is_page_focused(self.player_page):
+                self.player_page.on_games(widget)
+
+        return [
+            LabeledMenuItem('Edit games', on_games, '<Control>G')
+        ]
 
     def make_page_menu(self, element_name, page, new_accelerator):
         def on_new(widget):
