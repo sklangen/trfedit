@@ -23,7 +23,7 @@ def main():
     else:
         win.set_tournament_to_new_tournament()
 
-    Gtk.main()
+    return Gtk.main()
 
 
 if __name__ == '__main__':

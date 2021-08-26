@@ -24,5 +24,10 @@ setup(
         'Topic :: Utilities',
     ],
     install_requires=['trf'],
-    package_data={'trfedit': ['resources/*']}
+    package_data={'trfedit': ['resources/*']},
+    entry_points={
+        'console_scripts': [
+            'trfedit = trfedit.__main__:main',
+        ]
+    }
 )
