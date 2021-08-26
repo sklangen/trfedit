@@ -47,7 +47,9 @@ class PlayerBackend(TreeViewPageBackend):
         if rating is not None:
             self.tournament.players[int(path)].rating = rating
             self.store[path][4] = rating
+
             self.win.on_unsaved_changes()
+            self.update_numplayers()
 
     def parse_int(self, text, bound=2147483647):
         if not text.isdigit():
@@ -203,9 +205,9 @@ class PlayerBackend(TreeViewPageBackend):
 
     def update_numplayers(self):
         self.tournament.numplayers = len(self.tournament.players)
-        self.tournament.numplayers = len(filter(
-            lambda p: p.rating is not None and p.rating > 0,
-            self.tournament.players))
+        self.tournament.numratedplayers = sum(
+            1 for p in self.tournament.players
+            if p.rating is not None and p.rating > 0)
 
 
 class PlayerPage(TreeViewPage):
