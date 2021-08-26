@@ -23,5 +23,6 @@ setup(
         'Programming Language :: Python :: 3.8',
         'Topic :: Utilities',
     ],
-    install_requires=['trf']
+    install_requires=['trf'],
+    package_data={'trfedit': ['resources/*']}
 )

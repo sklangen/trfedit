@@ -1,4 +1,5 @@
 from gi.repository import Gtk
+import pkg_resources
 import traceback
 import trf
 
@@ -80,6 +81,11 @@ class Window(Gtk.Window):
         menu_bar.add_menu('_Help', [
             StockMenuItem(Gtk.STOCK_INFO, self.on_info)
         ])
+
+        icon = pkg_resources.resource_filename('trfedit.resources', 'icon.png')
+        self.set_icon_from_file(icon)
+
+        self.set_default_icon(self.get_icon())
 
     def on_info(self, widget):
         dialog = Gtk.AboutDialog.new()
