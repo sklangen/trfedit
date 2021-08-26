@@ -82,7 +82,7 @@ class Window(Gtk.Window):
             StockMenuItem(Gtk.STOCK_INFO, self.on_info)
         ])
 
-        icon = pkg_resources.resource_filename('trfedit.resources', 'icon.png')
+        icon = pkg_resources.resource_filename('trfedit.resources', 'trfedit.png')
         self.set_icon_from_file(icon)
 
         self.set_default_icon(self.get_icon())

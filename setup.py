@@ -5,7 +5,7 @@ with open('README.md') as f:
 
 setup(
     name='trfedit',
-    version='1.0.0',
+    version='1.1.0',
     author='Schachklub Langen e. V.',
     author_email='Turnierleiter@sklangen.de',
     description='A GUI editor for the fide approved tournament report format: trf',
@@ -29,5 +29,9 @@ setup(
         'console_scripts': [
             'trfedit = trfedit.__main__:main',
         ]
-    }
+    },
+    data_files=[
+        ('share/icons/hicolor/256x256/apps', ['trfedit/resources/trfedit.png']),
+        ('share/applications', ['trfedit.desktop'])
+    ]
 )
