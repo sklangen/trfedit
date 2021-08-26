@@ -11,7 +11,9 @@ from .Window import Window
 
 def main():
     warnings.filterwarnings("ignore", category=DeprecationWarning)
-    locale.setlocale(locale.LC_ALL, locale='en_US')
+
+    _, encoding = locale.getlocale()
+    locale.setlocale(locale.LC_ALL, locale=('en_US', encoding))
 
     win = Window()
     win.show_all()
